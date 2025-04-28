@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID Entry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+        }
+        #student-id-container {
+            margin-top: 50px;
+        }
+        input {
+            padding: 10px;
+            width: 80%;
+            max-width: 300px;
+            font-size: 16px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #student-id-result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <button onclick="goToNext()">Next</button>
+        <h2>Enter Student ID</h2>
+        <button onclick="goToFinish()">Finish</button>
+    </div>
+
+    <div id="student-id-container">
+        <input type="text" id="student-id" placeholder="Enter Student ID">
+        <p id="student-id-result">Enter your Student ID above.</p>
+        <button onclick="saveStudentID()">Submit</button>
+    </div>
+
+    <script>
+    function saveStudentID() {
+    let studentID = document.getElementById("student-id").value.trim();
+    
+    if (!studentID) {
+        alert("Please enter a valid Student ID.");
+        return;
+    }
+
+    // Retrieve existing data or initialize an empty array
+    let presentStudents = JSON.parse(localStorage.getItem("Currency Scanning")) || [];
+
+    // Convert studentID to a number and check if it's already stored
+    let numericID = Number(studentID);
+    if (!presentStudents.includes(numericID)) {
+        presentStudents.push(numericID); // Add the new ID
+        localStorage.setItem("Currency Scanning", JSON.stringify(presentStudents)); // Save back to localStorage
+        document.getElementById("student-id-result").innerText = "Saved Student ID: " + studentID;
+    } else {
+        alert("This Student ID is already saved!");
+    }
+}
+        </script>
+
+</body>
+</html>

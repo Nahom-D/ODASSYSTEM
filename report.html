@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        input, button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #reportSection {
+            background: white;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff3cd;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Attendance Report</h2>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date" required>
+
+    <label for="grade">Grade:</label>
+    <input type="text" id="grade" placeholder="e.g. 10E" required>
+
+    <label for="period">Period:</label>
+    <input type="text" id="period" placeholder="e.g. 1" required>
+
+    <button onclick="findRecords()">Find</button>
+
+    <h3>Report</h3>
+    <div id="reportSection">
+        <p><strong>Date:</strong> <span id="reportDate"></span></p>
+        <p><strong>Grade:</strong> <span id="reportGrade"></span></p>
+        <p><strong>Period:</strong> <span id="reportPeriod"></span></p>
+        <p><strong>Absent Students:</strong></p>
+        <ul id="reportAbsent"></ul>
+        <p><strong>Permitted Students:</strong></p>
+        <ul id="reportPermitted"></ul>
+    </div>
+
+    <button onclick="sendReport()">Send Report</button>
+
+    <script>
+        function findRecords() {
+            const date = document.getElementById("date").value;
+            const grade = document.getElementById("grade").value;
+            const period = document.getElementById("period").value;
+
+            // Retrieve attendance records from localStorage
+            const savedData = JSON.parse(localStorage.getItem("Absent Records"));
+
+            if (!savedData) {
+                alert("No attendance records found.");
+                return;
+            }
+
+            // Ensure stored data matches input
+            if (savedData.date === date && savedData.grade === grade && savedData.period === period) {
+                document.getElementById("reportDate").innerText = savedData.date;
+                document.getElementById("reportGrade").innerText = savedData.grade;
+                document.getElementById("reportPeriod").innerText = savedData.period;
+
+                // Extract names and display them as lists
+                displayStudentList("reportAbsent", savedData.absentStudents);
+                displayStudentList("reportPermitted", savedData.permittedStudents);
+            } else {
+                alert("No matching records found.");
+            }
+        }
+
+        function displayStudentList(elementId, students) {
+            const listElement = document.getElementById(elementId);
+            listElement.innerHTML = ""; // Clear previous data
+
+            if (!students || students.length === 0) {
+                listElement.innerHTML = "<li>None</li>";
+                return;
+            }
+
+            students.forEach(student => {
+                const listItem = document.createElement("li");
+                listItem.innerText = student.name; // Extracting name from the object
+                listElement.appendChild(listItem);
+            });
+        }
+
+        function sendReport() {
+            const date = document.getElementById("reportDate").innerText;
+            const grade = document.getElementById("reportGrade").innerText;
+            const period = document.getElementById("reportPeriod").innerText;
+
+            const absentStudents = [...document.getElementById("reportAbsent").children]
+                .map(li => li.innerText)
+                .filter(name => name !== "None")
+                .join("\n- ");
+
+            const permittedStudents = [...document.getElementById("reportPermitted").children]
+                .map(li => li.innerText)
+                .filter(name => name !== "None")
+                .join("\n- ");
+
+            if (!date || !grade || !period) {
+                alert("No report to send. Please find records first.");
+                return;
+            }
+
+            const reportMessage = `📢 Attendance Report:\n📅 Date: ${date}\n🏫 Grade: ${grade}\n⏳ Period: ${period}\n\n🚫 Absent Students:\n- ${absentStudents || "None"}\n\n✅ Permitted Students:\n- ${permittedStudents || "None"}`;
+
+            const botToken = "7515841528:AAHMo3w4dojN5o0DqRNisUKXmlKzuO080mk";
+            const chatId = "@xjdkksksksjska";
+            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: reportMessage,
+                    parse_mode: "HTML"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert("Report sent successfully!");
+                } else {
+                    alert("Failed to send report. Check bot token and chat ID.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error sending report.");
+            });
+        }
+    </script>
+
+</body>
+</html>

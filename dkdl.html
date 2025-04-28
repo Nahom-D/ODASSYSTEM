@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absent Students</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Absent Students List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody id="absentStudentsTable"></tbody>
+    </table>
+
+    <script>
+        // Student list
+        const students = [
+            { id: 1, name: "Abdi Sisay Chibsa" },
+            { id: 2, name: "Abdulkarim Kedir Heyi" },
+            { id: 3, name: "Bekele Alemayehu Hirpo" },
+            { id: 4, name: "Dangalaso Abicho Kasaye" },
+            { id: 5, name: "Ebise Jote Arsadi" },
+            { id: 6, name: "Fenet Chala Sime" },
+            { id: 7, name: "Fenet Belachew Abebe" },
+            { id: 8, name: "Fenet Gemachis Legese" },
+            { id: 9, name: "Firaol Birhanu Tulu" },
+            { id: 10, name: "Fuad Seyida Mohammed" },
+            { id: 11, name: "Gemechu Bekele Duga" },
+            { id: 12, name: "Gemechu Fitta Fininsa" },
+            { id: 13, name: "Godana Olko Buno" },
+            { id: 14, name: "Habtamu Feleke Tesema" },
+            { id: 15, name: "Heran Garoma Daba" },
+            { id: 16, name: "Iftiyom Tesfaye Daba" },
+            { id: 17, name: "Kebe Taye Tufa" },
+            { id: 18, name: "Kena Fayera Ijasa" },
+            { id: 19, name: "Kidist Lema Tafa" },
+            { id: 20, name: "Kuma Tule Urgessa" },
+            { id: 21, name: "Lelisa Gebeyo Degafe" },
+            { id: 22, name: "Meti Hunde Tilahun" },
+            { id: 23, name: "Milkiyas Birhanu Bikila" },
+            { id: 24, name: "Nahom Debebe Difabachew" },
+            { id: 25, name: "Saron Guluma Feyisa" },
+            { id: 26, name: "Sena Birhanu Tolera" },
+            { id: 27, name: "Sena Gemeda" },
+            { id: 28, name: "Sena Gudeta Bonso" },
+            { id: 29, name: "Shitaye Guye Tufa" },
+            { id: 30, name: "Sifan Ibsa Derasu" },
+            { id: 31, name: "Sifen Kebede Terefe" },
+            { id: 32, name: "Sifan Nuguse Benti" },
+            { id: 33, name: "Simbo Alemu Tolera" },
+            { id: 34, name: "Telile Megersa Jebesa" },
+            { id: 35, name: "Tokuma Bayisa Kabeta" },
+            { id: 36, name: "Tsiyon Nuguse Debele" },
+            { id: 37, name: "Wakuma Abebe Tola" },
+            { id: 38, name: "Wakweya Tadese Wakjira" }
+        ];
+
+        // Retrieve absent student IDs from localStorage
+        const absentStudentIds = JSON.parse(localStorage.getItem("Currency Scanning")) || [];
+
+        // Filter absent students
+        const absentStudents = students.filter(student => absentStudentIds.includes(student.id));
+
+        // Display absent students in table
+        const tableBody = document.getElementById("absentStudentsTable");
+        absentStudents.forEach(student => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${student.id}</td><td>${student.name}</td>`;
+            tableBody.appendChild(row);
+        });
+    </script>
+
+</body>
+</html>

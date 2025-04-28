@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+        }
+        #qr-scanner {
+            width: 300px;
+            height: 300px;
+            margin: auto;
+            border: 2px solid #000;
+            background: #fff;
+        }
+        #qr-result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #savedValues {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            margin: 15% auto;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .modal button {
+            background-color: red;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <button onclick="goToNext()">Next</button>
+    <h2>QR Code Scanner</h2>
+    <button onclick="goToFinish()">Finish</button>
+</div>
+
+<div id="qr-scanner"></div>
+<p id="qr-result">Scan a QR Code...</p>
+<button onclick="startScanner()">Start Scanner</button>
+<button onclick="stopScanner()">Stop Scanner</button>
+
+<div id="savedValues">Saved IDs: None</div>
+
+<!-- Modal -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <p>No QR code scanned!</p>
+        <button onclick="closeModal()">OK</button>
+    </div>
+</div>
+
+<script>
+    let scanner;
+
+    function startScanner() {
+        scanner = new Html5Qrcode("qr-scanner");
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                let backCamera = devices.find(device => device.label.toLowerCase().includes("back")) || devices[0];
+                scanner.start(backCamera.id, { fps: 10, qrbox: 250 },
+                    (decodedText) => {
+                        try {
+                            const decodedID = atob(decodedText); // Decode Base64
+                            const numericID = parseFloat(decodedID); // Convert to number
+
+                            if (!isNaN(numericID)) { // Ensure it's a valid number
+                                document.getElementById("qr-result").innerText = "Scanned ID: " + numericID;
+                                saveScannedID(numericID);
+                            } else {
+                                console.error("Invalid number format");
+                                document.getElementById("qr-result").innerText = "Invalid QR Code!";
+                            }
+                        } catch (error) {
+                            console.error("Invalid Base64 encoding:", error);
+                            document.getElementById("qr-result").innerText = "Invalid QR Code!";
+                        }
+                    },
+                    (errorMessage) => {
+                        console.log(errorMessage);
+                    }
+                ).catch(err => console.log(err));
+            }
+        }).catch(err => console.log(err));
+    }
+
+    function stopScanner() {
+        if (scanner) {
+            scanner.stop().then(() => {
+                console.log("Scanner stopped");
+            }).catch(err => console.log(err));
+        }
+    }
+
+    function saveScannedID(scannedID) {
+        let savedIDs = JSON.parse(localStorage.getItem("CurrencyScanning")) || [];
+
+        if (!savedIDs.includes(scannedID)) {
+            savedIDs.push(scannedID);
+            localStorage.setItem("CurrencyScanning", JSON.stringify(savedIDs));
+        }
+
+        displaySavedIDs();
+    }
+
+    function displaySavedIDs() {
+        let savedIDs = JSON.parse(localStorage.getItem("CurrencyScanning")) || [];
+        document.getElementById("savedValues").innerText = 
+            "Saved IDs: " + (savedIDs.length ? savedIDs.join(", ") : "None");
+    }
+
+    function saveDataAndRedirect(url) {
+        let savedIDs = JSON.parse(localStorage.getItem("CurrencyScanning")) || [];
+        if (savedIDs.length > 0) {
+            window.location.href = url;
+        } else {
+            showModal();
+        }
+    }
+
+    function goToNext() {
+        saveDataAndRedirect("scan.html");
+    }
+
+    function goToFinish() {
+        saveDataAndRedirect("Grade.html");
+    }
+
+    function showModal() {
+        document.getElementById("errorModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("errorModal").style.display = "none";
+    }
+
+    window.onload = displaySavedIDs;
+</script>
+
+</body>
+</html>

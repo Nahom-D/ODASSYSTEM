@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Evaluator</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            text-align: center;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #007bff;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e9ecef;
+            transition: 0.3s;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .finish-btn {
+            background: #28a745;
+            margin-top: 20px;
+        }
+        .finish-btn:hover {
+            background: #218838;
+        }
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            animation: scaleUp 0.3s ease-in-out;
+        }
+        .modal button {
+            margin-top: 15px;
+            padding: 10px 18px;
+            font-size: 14px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .modal button:hover {
+            background-color: #0056b3;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+            from { transform: scale(0.9); }
+            to { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Absent Students</h1>
+
+    <div class="controls">
+        <input type="date" id="date">
+        <input type="text" id="period" placeholder="Enter period">
+        <button onclick="reportAbsences()">Report</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Permitted</th>
+            </tr>
+        </thead>
+        <tbody id="absentList"></tbody>
+    </table>
+
+    <button class="finish-btn" onclick="finishProcess()">Finish</button>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <p>✅ Report successfully sent!</p>
+            <button onclick="closeModal('successModal')">OK</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <p>❌ Failed to send the report!</p>
+            <button onclick="closeModal('errorModal')">OK</button>
+        </div>
+    </div>
+
+    <script>
+         
+     const students = [
+        { id: 1, name: "Abdi Sisay Chibsa" },
+        { id: 2, name: "Abdulkarim Kedir Heyi" },
+        { id: 3, name: "Bekele Alemayehu Hirpo" },
+        { id: 4, name: "Dangalaso Abicho Kasaye" },
+        { id: 5, name: "Ebise Jote Arsadi" },
+        { id: 6, name: "Fenet Chala Sime" },
+        { id: 7, name: "Fenet Belachew Abebe" },
+        { id: 8, name: "Fenet Gemachis Legese" },
+        { id: 9, name: "Firaol Birhanu Tulu" },
+        { id: 10, name: "Fuad Seyida Mohammed" },
+        { id: 11, name: "Gemechu Bekele Duga" },
+        { id: 12, name: "Gemechu Fitta Fininsa" },
+        { id: 13, name: "Godana Olko Buno" },
+        { id: 14, name: "Habtamu Feleke Tesema" },
+        { id: 15, name: "Heran Garoma Daba" },
+        { id: 16, name: "Iftiyom Tesfaye Daba" },
+        { id: 17, name: "Kebe Taye Tufa" },
+        { id: 18, name: "Kena Fayera Ijasa" },
+        { id: 19, name: "Kidist Lema Tafa" },
+        { id: 20, name: "Kuma Tule Urgessa" },
+        { id: 21, name: "Lelisa Gebeyo Degafe" },
+        { id: 22, name: "Meti Hunde Tilahun" },
+        { id: 23, name: "Milkiyas Birhanu Bikila" },
+        { id: 24, name: "Nahom Debebe Difabachew" },
+        { id: 25, name: "Saron Guluma Feyisa" },
+        { id: 26, name: "Sena Birhanu Tolera" },
+        { id: 27, name: "Sena Gemeda" },
+        { id: 28, name: "Sena Gudeta Bonso" },
+        { id: 29, name: "Shitaye Guye Tufa" },
+        { id: 30, name: "Sifan Ibsa Derasu" },
+        { id: 31, name: "Sifen Kebede Terefe" },
+        { id: 32, name: "Sifan Nuguse Benti" },
+        { id: 33, name: "Simbo Alemu Tolera" },
+        { id: 34, name: "Telile Megersa Jebesa" },
+        { id: 35, name: "Tokuma Bayisa Kabeta" },
+        { id: 36, name: "Tsiyon Nuguse Debele" },
+        { id: 37, name: "Wakuma Abebe Tola" },
+        { id: 38, name: "Wakweya Tadese Wakjira" }
+    ];     
+        
+        
+        
+        
+        
+        
+        
+        
+
+        function loadAbsentStudents() {
+            let absentIds = localStorage.getItem("CurrencyScanning");
+
+            try {
+                absentIds = absentIds ? JSON.parse(absentIds) : [];
+            } catch (error) {
+                console.error("Error parsing localStorage data:", error);
+                absentIds = [];
+            }
+
+            let absentStudents = students.filter(student => absentIds.includes(student.id));
+            let tableBody = document.getElementById("absentList");
+            tableBody.innerHTML = "";
+
+            if (absentStudents.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='3'>No students are absent</td></tr>";
+                return;
+            }
+
+            absentStudents.forEach(student => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td><input type="checkbox" class="permitCheckbox" data-id="${student.id}"></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function reportAbsences() {
+            let date = document.getElementById("date").value;
+            let period = document.getElementById("period").value;
+
+            if (!date || !period) {
+                showModal("errorModal");
+                return;
+            }
+
+            let absentStudents = [];
+            document.querySelectorAll("#absentList tr").forEach(row => {
+                let id = parseInt(row.children[0].innerText, 10);
+                let name = row.children[1].innerText;
+                let permitted = row.children[2].querySelector(".permitCheckbox").checked;
+
+                absentStudents.push({ id, name, permitted });
+            });
+
+            localStorage.setItem("Absent Students", JSON.stringify({ date, period, students: absentStudents }));
+
+            sendToTelegram(date, period, absentStudents);
+        }
+
+        function sendToTelegram(date, period, students) {
+            let message = `📌 *Grade 10C Absent Report*\n📅 *Date:* ${date}\n⏳ *Period:* ${period}\n\n`;
+
+            students.forEach(student => {
+                message += `🔹 *${student.name}* - ${student.permitted ? "✅ Permitted" : "❌ Not Permitted"}\n`;
+            });
+
+            let botToken = "7515841528:AAHMo3w4dojN5o0DqRNisUKXmlKzuO080mk";
+            let chatId = "@xjdkksksksjska";
+            let telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            fetch(telegramApiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: "Markdown" })
+            })
+            .then(response => response.json())
+            .then(data => showModal(data.ok ? "successModal" : "errorModal"))
+            .catch(() => showModal("errorModal"));
+        }
+
+        function finishProcess() {
+            window.location.href = "continue.html";
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = "flex";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        window.onload = loadAbsentStudents;
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background-color: #e6f7ff;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #007acc;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    #teacherNameDisplay {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 18px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="date"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #bbb;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #007acc;
+      color: white;
+      font-weight: bold;
+    }
+    .radio-group {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+    .radio-group input[type="radio"] {
+      display: none;
+    }
+    .radio-group label {
+      padding: 6px 12px;
+      border: 1px solid #007acc;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: white;
+      color: #007acc;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+    .radio-group input[type="radio"]:checked + label {
+      background-color: #007acc;
+      color: white;
+      transform: scale(1.05);
+    }
+    .radio-group label:hover {
+      background-color: #cceeff;
+    }
+    #submitBtn {
+      display: block;
+      width: 100%;
+      margin: 20px 0;
+      padding: 14px;
+      font-size: 18px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #submitBtn:hover {
+      background-color: #005c99;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      z-index: 1000;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .modal.active {
+      display: block;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+    }
+    .overlay.active {
+      display: block;
+    }
+    .modal button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .modal button:hover {
+      background-color: #005c99;
+    }
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      tr {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #f9f9f9;
+      }
+      td, th {
+        text-align: left;
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #007acc;
+        color: white;
+      }
+      .radio-group {
+        justify-content: flex-start;
+      }
+         .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: black;
+            text-decoration: none;
+            padding: 10px;
+            border: 2px solid green;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        .back-arrow:hover {
+            background-color: white;
+            color: black;
+        }
+    }
+  </style>
+</head>
+<body>
+<a href="home.html" class="back-arrow">←</a>
+  <h1>Class Attendance</h1>
+  <div id="teacherNameDisplay">Teacher: </div>
+
+  <label>Date:</label>
+  <input type="date" id="dateb">
+  <label>Period:</label>
+  <input type="text" id="period" placeholder="e.g. 1st, 2nd">
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Present</th>
+        <th>Absent</th>
+        <th>Permitted</th>
+      </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+  </table>
+
+  <button id="submitBtn" onclick="submitAttendance()">Submit</button>
+
+  <!-- Modal -->
+  <div class="overlay" id="overlay"></div>
+  <div class="modal" id="modal">
+    <p>Attendance submitted successfully!</p>
+    <button onclick="closeModal()">Close</button>
+  </div>
+
+  <script>
+    
+   const students = [
+        { id: 1, name: "Abreham Temesgen Adula" },
+        { id: 2, name: "Alazar Teshoma Sandaba" },
+        { id: 3, name: "Ansar Nazif Aba-Nega" },
+        { id: 4, name: "Ararso Abdusalem Mohamed" },
+        { id: 5, name: "Beka Bayisa Ragasa" },
+        { id: 6, name: "Bilisse Husen Deettii" },
+        { id: 7, name: "Bilisuma Tsegaye Miecha" },
+        { id: 8, name: "Dagim Abebe Geleta" },
+        { id: 9, name: "Dawit Regasa Idesa" },
+        { id: 10, name: "Deborah Berhanu Nemo" },
+        { id: 11, name: "Ekram Negash Ahmed" },
+        { id: 12, name: "Eliliy Yilma Shigute" },
+        { id: 13, name: "Fenet Wondimu Chala" },
+        { id: 14, name: "Gamachu Fikadu Kana'a" },
+        { id: 15, name: "Gashewun TadessaBalina" },
+        { id: 16, name: "Gebisa Chala Mogasa" },
+        { id: 17, name: "Gudina Sori Mulisa" },
+        { id: 18, name: "Hamdi Sadik Ahmedo" },
+        { id: 19, name: "Kanariyan Endalew Merzo" },
+        { id: 20, name: "Kena Gizaw Bekela" },
+        { id: 21, name: "Koket Tesfaye Bulti" },
+        { id: 22, name: "Kumsa Faji Bedada" },
+        { id: 23, name: "Mabruka Abadir Umar" },
+        { id: 24, name: "Mehbuba Elias Hussein" },
+        { id: 25, name: "Meti Merga Moroda" },
+        { id: 26, name: "Michu Gemeda Letemo" },
+        { id: 27, name: "Milkessa Nigatu Wedajo" },
+        { id: 28, name: "Mosisa Jabesa Marga" },
+        { id: 29, name: "Numeras Adugna Garedo" },
+        { id: 30, name: "Roza Abera Lamesa" },
+        { id: 31, name: "Salahadin Hussen Kedir" },
+        { id: 32, name: "Seyfu Gelgelu Bakeru" },
+        { id: 33, name: "Sifan Ararsa Fufa" },
+        { id: 34, name: "Yeabsira Bantirgu" }
+    ];
+
+        
+        
+        
+        
+
+    
+    
+    
+        
+    
+    
+    
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    document.getElementById("teacherNameDisplay").textContent = `Teacher: ${userData.fullName || "Unknown"}`;
+
+    const tableBody = document.getElementById("studentTable");
+    students.forEach((student, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${student.id}</td>
+        <td>${student.name}</td>
+        <td class="radio-group">
+          <input type="radio" id="present-${index}" name="status-${index}" value="Present" checked>
+          <label for="present-${index}">Present</label>
+        </td>
+        <td class="radio-group">
+          <input type="radio" id="absent-${index}" name="status-${index}" value="Absent">
+          <label for="absent-${index}">Absent</label>
+        </td>
+        <td class="radio-group">
+          <input type="radio" id="permitted-${index}" name="status-${index}" value="Permitted">
+          <label for="permitted-${index}">Permitted</label>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    function submitAttendance() {
+      const dateb = document.getElementById("dateb").value;
+      const period = document.getElementById("period").value;
+      if (!dateb || !period) {
+        showModal("Please fill in date and period!");
+        return;
+      }
+
+      let absentList = [];
+      let permittedList = [];
+
+      students.forEach((student, index) => {
+        const status = document.querySelector(`input[name="status-${index}"]:checked`).value;
+        if (status === "Absent") absentList.push(`${student.id}. ${student.name}`);
+        if (status === "Permitted") permittedList.push(`${student.id}. ${student.name}`);
+      });
+
+      let message = `Grade 9A report 📅 Date: ${dateb}\n⏰ Period: ${period}\n👨‍🏫 Teacher: ${userData.fullName || "Unknown"}\n`;
+      if (absentList.length) message += `\n❌ Absent:\n` + absentList.join("\n");
+      if (permittedList.length) message += `\n✅ Permitted:\n` + permittedList.join("\n");
+
+      const key = `attendance_10B_${dateb}_${period}`;
+      const dataToSave = { absent: absentList, permitted: permittedList };
+      localStorage.setItem(`attendance_${key}`, JSON.stringify(dataToSave));
+
+      if (absentList.length || permittedList.length) {
+        const botToken = "7515841528:AAHMo3w4dojN5o0DqRNisUKXmlKzuO080mk";
+        const chatId = "@xjdkksksksjska";
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text: message })
+        }).then(res => res.json())
+          .then(data => {
+            showModal("Attendance submitted successfully!");
+          }).catch(err => {
+            showModal("Telegram Error: " + err.message);
+          });
+      } else {
+        showModal("Attendance submitted successfully!");
+      }
+    }
+
+    function showModal(message) {
+      document.getElementById("modal").querySelector("p").textContent = message;
+      document.getElementById("overlay").classList.add("active");
+      document.getElementById("modal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("overlay").classList.remove("active");
+      document.getElementById("modal").classList.remove("active");
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+                

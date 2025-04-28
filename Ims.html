@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #savedValues {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Scanning</h1>
+    <input type="number" id="numberInput" placeholder="Enter a number">
+    <button onclick="saveNumber()">Save</button>
+    <div id="savedValues"></div>
+
+    <script>
+        function saveNumber() {
+            let inputElement = document.getElementById("numberInput");
+            let inputValue = inputElement.value.trim();
+
+            if (inputValue === "" || isNaN(inputValue)) {
+                alert("Please enter a valid number.");
+                return;
+            }
+
+            let savedNumbers = JSON.parse(localStorage.getItem("CurrencyScanning")) || [];
+
+            savedNumbers.push(parseFloat(inputValue)); // Store as a number
+
+            localStorage.setItem("CurrencyScanning", JSON.stringify(savedNumbers));
+
+            displaySavedValues();
+            inputElement.value = ""; 
+        }
+
+        function displaySavedValues() {
+            let savedNumbers = JSON.parse(localStorage.getItem("CurrencyScanning")) || [];
+            document.getElementById("savedValues").innerText = 
+                "Saved Numbers: " + (savedNumbers.length ? savedNumbers.join(", ") : "None");
+        }
+
+        window.onload = displaySavedValues;
+    </script>
+
+</body>
+</html>
